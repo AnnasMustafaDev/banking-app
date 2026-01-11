@@ -308,5 +308,3 @@ For issues or questions, check:
 3. API endpoint implementations in `main.py`
 
 ---
-
-**Version**: 1.0  
