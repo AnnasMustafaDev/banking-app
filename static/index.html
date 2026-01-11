@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank App - Account Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .balance-display {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .balance-display .label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .balance-display .amount {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .transactions {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px;
+            color: #555;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .tx-type {
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .tx-deposit {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .tx-withdrawal {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .tx-transfer-in {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .tx-transfer-out {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-button {
+            padding: 10px 15px;
+            background: transparent;
+            color: #666;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: transparent;
+        }
+
+        .tab-button:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .summary-item .label {
+            color: #666;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .summary-item .value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error-details {
+            background: #fff;
+            border: 1px solid #f5c6cb;
+            border-radius: 3px;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .status-window {
+            background: #1e1e1e;
+            color: #00ff00;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .status-line {
+            margin: 5px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .status-success {
+            color: #00ff00;
+        }
+
+        .status-error {
+            color: #ff0000;
+        }
+
+        .status-info {
+            color: #00ffff;
+        }
+
+        .status-warning {
+            color: #ffff00;
+        }
+
+        .clear-status-btn {
+            background: #667eea;
+            padding: 5px 10px;
+            font-size: 12px;
+            width: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 Bank App</h1>
+            <p>Account Management System</p>
+        </div>
+
+        <!-- STATUS OUTPUT WINDOW -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h2>📡 Request Status & Output</h2>
+            <div class="status-window" id="statusWindow">
+                <div class="status-line status-info">✓ System ready. Enter account ID to start.</div>
+            </div>
+            <button class="clear-status-btn" onclick="clearStatus()">Clear Status</button>
+        </div>
+
+        <div class="content">
+            <!-- Account Section -->
+            <div class="card">
+                <h2>Account Information</h2>
+                <div class="form-group">
+                    <label for="accountId">Account ID</label>
+                    <input type="text" id="accountId" placeholder="e.g., user123" value="user1">
+                </div>
+                <button onclick="loadAccountInfo()">Load Account</button>
+
+                <div id="accountInfo" style="display: none; margin-top: 20px;">
+                    <div class="balance-display">
+                        <div class="label">Current Balance</div>
+                        <div class="amount" id="balanceAmount">$0</div>
+                    </div>
+
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="label">Daily Transfer Total</div>
+                            <div class="value" id="dailyTotal">$0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="label">Daily Remaining</div>
+                            <div class="value" id="dailyRemaining">$25,000</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px;">
+                        <div class="label">Transaction Count</div>
+                        <div style="font-size: 18px; font-weight: bold; color: #667eea;" id="txCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deposit/Withdraw Section -->
+            <div class="card">
+                <h2>Deposit & Withdrawal</h2>
+
+                <div id="depositMessage"></div>
+
+                <div class="form-group">
+                    <label for="depositAmount">Amount</label>
+                    <input type="number" id="depositAmount" placeholder="Amount in dollars" value="1000" min="1">
+                </div>
+
+                <button onclick="performDeposit()">💰 Deposit</button>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="withdrawAmount">Withdrawal Amount</label>
+                    <input type="number" id="withdrawAmount" placeholder="Amount in dollars" value="500" min="1">
+                </div>
+
+                <button onclick="performWithdraw()">💸 Withdraw</button>
+            </div>
+
+            <!-- Transfer Section -->
+            <div class="card">
+                <h2>Transfer Funds</h2>
+
+                <div id="transferMessage"></div>
+
+                <div class="form-group">
+                    <label for="toAccount">To Account</label>
+                    <input type="text" id="toAccount" placeholder="e.g., user2" value="user2">
+                </div>
+
+                <div class="form-group">
+                    <label for="transferAmount">Amount</label>
+                    <input type="number" id="transferAmount" placeholder="Amount in dollars" value="100" min="1" max="10000">
+                </div>
+
+                <div class="form-group">
+                    <label for="idempotencyKey">Idempotency Key (Optional)</label>
+                    <input type="text" id="idempotencyKey" placeholder="Leave empty for automatic">
+                </div>
+
+                <button onclick="performTransfer()">📤 Transfer</button>
+
+                <div style="margin-top: 15px; font-size: 12px; color: #666;">
+                    <strong>Limits:</strong>
+                    <ul style="margin-left: 15px; margin-top: 5px;">
+                        <li>Max per transfer: $10,000</li>
+                        <li>Daily limit: $25,000</li>
+                        <li>Rate: 10 transfers/minute</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="card full-width">
+                <h2>Transaction History</h2>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="txLimit">Items per page:</label>
+                    <select id="txLimit" style="width: auto;">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                    <button onclick="loadTransactions()" style="width: auto; padding: 8px 15px; margin-left: 10px;">
+                        Refresh
+                    </button>
+                </div>
+
+                <div id="transactionsContainer" class="transactions">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Load account first to see transactions</p>
+                    </div>
+                </div>
+
+                <div id="pagination" style="margin-top: 15px; text-align: center; display: none;">
+                    <button onclick="prevPage()" style="width: 100px; margin-right: 10px;">← Previous</button>
+                    <span id="pageInfo">Page 1</span>
+                    <button onclick="nextPage()" style="width: 100px; margin-left: 10px;">Next →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let currentAccount = null;
+        let currentCursor = 0;
+        let nextCursor = null;
+
+        // Status window logging
+        function logStatus(message, type = 'info') {
+            const statusWindow = document.getElementById('statusWindow');
+            const timestamp = new Date().toLocaleTimeString();
+            const typeClass = `status-${type}`;
+            
+            let icon = '✓';
+            if (type === 'error') icon = '✗';
+            else if (type === 'warning') icon = '⚠';
+            else if (type === 'info') icon = 'ℹ';
+            
+            const line = document.createElement('div');
+            line.className = `status-line ${typeClass}`;
+            line.textContent = `[${timestamp}] ${icon} ${message}`;
+            
+            statusWindow.appendChild(line);
+            statusWindow.scrollTop = statusWindow.scrollHeight;
+        }
+
+        function clearStatus() {
+            document.getElementById('statusWindow').innerHTML = 
+                '<div class="status-line status-info">✓ Status cleared.</div>';
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null, headers = {}) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...headers
+                }
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            logStatus(`Sending ${method} ${endpoint}...`, 'info');
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const errorMsg = data.detail || 'API Error';
+                    logStatus(`❌ ${method} ${endpoint} - ${errorMsg}`, 'error');
+                    throw new Error(errorMsg);
+                }
+
+                logStatus(`✓ ${method} ${endpoint} - Success`, 'success');
+                return data;
+            } catch (error) {
+                logStatus(`✗ ${method} ${endpoint} - ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        function showMessage(elementId, message, type = 'info') {
+            const elem = document.getElementById(elementId);
+            const alertClass = `alert alert-${type}`;
+            
+            let html = `<div class="${alertClass}">`;
+            if (typeof message === 'string') {
+                html += message;
+            } else {
+                html += message.detail || JSON.stringify(message);
+            }
+            html += '</div>';
+            
+            elem.innerHTML = html;
+
+            setTimeout(() => {
+                elem.innerHTML = '';
+            }, 5000);
+        }
+
+        async function loadAccountInfo() {
+            const accountId = document.getElementById('accountId').value.trim();
+            
+            if (!accountId) {
+                logStatus('Account ID is empty!', 'warning');
+                showMessage('accountInfo', 'Please enter an account ID', 'error');
+                return;
+            }
+
+            try {
+                logStatus(`Loading account: ${accountId}...`, 'info');
+                currentAccount = accountId;
+                const data = await apiCall(`/accounts/${accountId}/summary`);
+
+                logStatus(`Account loaded successfully!`, 'success');
+                
+                document.getElementById('balanceAmount').textContent = 
+                    '$' + data.balance.toLocaleString();
+                document.getElementById('dailyTotal').textContent = 
+                    '$' + data.daily_transfer_total.toLocaleString();
+                document.getElementById('dailyRemaining').textContent = 
+                    '$' + data.daily_transfer_remaining.toLocaleString();
+                document.getElementById('txCount').textContent = 
+                    data.transaction_count;
+
+                document.getElementById('accountInfo').style.display = 'block';
+                
+                currentCursor = 0;
+                await loadTransactions();
+                
+            } catch (error) {
+                logStatus(`Failed to load account: ${error.message}`, 'error');
+                showMessage('accountInfo', error.message, 'error');
+            }
+        }
+
+        async function loadTransactions() {
+            if (!currentAccount) {
+                showMessage('transactionsContainer', 'Please load an account first', 'error');
+                return;
+            }
+
+            try {
+                const limit = document.getElementById('txLimit').value;
+                const data = await apiCall(
+                    `/accounts/${currentAccount}/transactions?limit=${limit}&cursor=${currentCursor}`
+                );
+
+                let html = '';
+                if (data.items.length === 0) {
+                    html = '<div style="padding: 20px; text-align: center; color: #999;">No transactions</div>';
+                } else {
+                    html = '<table><thead><tr>';
+                    html += '<th>Type</th><th>Amount</th><th>Balance</th><th>Timestamp</th><th>TX ID</th>';
+                    html += '</tr></thead><tbody>';
+
+                    data.items.forEach(tx => {
+                        const type = tx.type;
+                        const typeClass = `tx-${type}`;
+                        const amount = Math.abs(tx.amount).toLocaleString();
+                        const balance = tx.balance_after.toLocaleString();
+                        const time = new Date(tx.timestamp).toLocaleString();
+                        const txId = tx.tx_id.substring(0, 8) + '...';
+
+                        html += `<tr>
+                            <td><span class="tx-type ${typeClass}">${type}</span></td>
+                            <td>$${amount}</td>
+                            <td>$${balance}</td>
+                            <td>${time}</td>
+                            <td title="${tx.tx_id}">${txId}</td>
+                        </tr>`;
+                    });
+
+                    html += '</tbody></table>';
+                }
+
+                document.getElementById('transactionsContainer').innerHTML = html;
+
+                // Pagination
+                if (data.has_more) {
+                    nextCursor = data.next_cursor;
+                    document.getElementById('pagination').style.display = 'block';
+                    document.getElementById('pageInfo').textContent = 
+                        `Page ${Math.floor(currentCursor / limit) + 1}`;
+                } else {
+                    document.getElementById('pagination').style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('transactionsContainer').innerHTML = 
+                    `<div class="alert alert-error">Failed to load transactions</div>`;
+            }
+        }
+
+        function nextPage() {
+            if (nextCursor !== null) {
+                currentCursor = nextCursor;
+                loadTransactions();
+            }
+        }
+
+        function prevPage() {
+            const limit = parseInt(document.getElementById('txLimit').value);
+            currentCursor = Math.max(0, currentCursor - limit);
+            loadTransactions();
+        }
+
+        async function performDeposit() {
+            if (!currentAccount) {
+                showMessage('depositMessage', 'Please load an account first', 'error');
+                return;
+            }
+
+            const amount = parseInt(document.getElementById('depositAmount').value);
+            if (!amount || amount <= 0) {
+                showMessage('depositMessage', 'Enter a valid amount', 'error');
+                return;
+            }
+
+            try {
+                await apiCall('/deposit', 'POST', {
+                    account_id: currentAccount,
+                    amount: amount
+                });
+
+                showMessage('depositMessage', `Deposited $${amount.toLocaleString()} successfully!`, 'success');
+                document.getElementById('depositAmount').value = '';
+                await loadAccountInfo();
+
+            } catch (error) {
+                logStatus(`Deposit failed: ${error.message}`, 'error');
+                showMessage('depositMessage', error.message, 'error');
+            }
+        }
+
+        async function performWithdraw() {
+            if (!currentAccount) {
+                logStatus('No account loaded', 'warning');
+                showMessage('depositMessage', 'Please load an account first', 'error');
+                return;
+            }
+
+            const amount = parseInt(document.getElementById('withdrawAmount').value);
+            if (!amount || amount <= 0) {
+                logStatus('Invalid withdrawal amount', 'warning');
+                showMessage('depositMessage', 'Enter a valid amount', 'error');
+                return;
+            }
+
+            try {
+                logStatus(`Withdrawing $${amount} from ${currentAccount}...`, 'info');
+                await apiCall('/withdraw', 'POST', {
+                    account_id: currentAccount,
+                    amount: amount
+                });
+
+                logStatus(`✓ Withdrawal successful: $${amount}`, 'success');
+                showMessage('depositMessage', `Withdrew $${amount.toLocaleString()} successfully!`, 'success');
+                document.getElementById('withdrawAmount').value = '';
+                await loadAccountInfo();
+
+            } catch (error) {
+                logStatus(`Withdrawal failed: ${error.message}`, 'error');
+                showMessage('depositMessage', error.message, 'error');
+            }
+        }
+
+        async function performTransfer() {
+            if (!currentAccount) {
+                logStatus('No account loaded', 'warning');
+                showMessage('transferMessage', 'Please load an account first', 'error');
+                return;
+            }
+
+            const toAccount = document.getElementById('toAccount').value.trim();
+            const amount = parseInt(document.getElementById('transferAmount').value);
+            const idempotencyKey = document.getElementById('idempotencyKey').value.trim();
+
+            if (!toAccount) {
+                logStatus('Missing recipient account', 'warning');
+                showMessage('transferMessage', 'Enter recipient account', 'error');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                logStatus('Invalid transfer amount', 'warning');
+                showMessage('transferMessage', 'Enter a valid amount', 'error');
+                return;
+            }
+
+            try {
+                logStatus(`Transferring $${amount} from ${currentAccount} to ${toAccount}...`, 'info');
+                const headers = {};
+                if (idempotencyKey) {
+                    headers['idempotency-key'] = idempotencyKey;
+                    logStatus(`Using idempotency key: ${idempotencyKey}`, 'info');
+                }
+
+                const result = await apiCall('/transfer', 'POST', {
+                    from_account: currentAccount,
+                    to_account: toAccount,
+                    amount: amount
+                }, headers);
+
+                logStatus(`✓ Transfer successful! TX ID: ${result.tx_id.substring(0, 12)}...`, 'success');
+                showMessage('transferMessage', 
+                    `Transfer successful! TX ID: ${result.tx_id.substring(0, 12)}...`, 'success');
+                document.getElementById('transferAmount').value = '';
+                document.getElementById('idempotencyKey').value = '';
+                await loadAccountInfo();
+
+            } catch (error) {
+                logStatus(`Transfer failed: ${error.message}`, 'error');
+                showMessage('transferMessage', error.message, 'error');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set focus to account ID field
+            document.getElementById('accountId').focus();
+        });
+    </script>
+</body>
+</html>
