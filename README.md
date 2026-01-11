@@ -306,5 +306,3 @@ For issues or questions, check:
 1. Test suite for usage examples
 2. Frontend code in `static/index.html`
 3. API endpoint implementations in `main.py`
-
----
