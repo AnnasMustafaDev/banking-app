@@ -190,7 +190,7 @@ GET /health
 ## API Documentation
 
 When running locally, interactive API documentation is available at:
-- **Swagger UI**: http://localhost:8000/docs
+- **Swagger UI**: http://localhost:8000/docs/
 - **ReDoc**: http://localhost:8000/redoc
 
 ## Frontend Features
